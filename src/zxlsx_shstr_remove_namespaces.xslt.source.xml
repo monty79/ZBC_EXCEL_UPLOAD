@@ -1,0 +1,26 @@
+<xsl:transform version="1.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:sap="http://www.sap.com/sapxsl"
+  xmlns:ss="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+>
+    <xsl:strip-space elements="*"/>
+    <xsl:template match="/">
+        <xsl:element name="sst" namespace="">
+            <xsl:for-each select="ss:sst/ss:si">
+                <xsl:element name="si" namespace="">
+                    <xsl:choose>
+                        <!-- если есть форматирование внутри ячейки, оно потеряется-->
+                        <xsl:when test="ss:r">
+                            <xsl:copy-of select="descendant-or-self::*/text()"/>
+                        </xsl:when>
+                        <xsl:otherwise>
+                          <xsl:element name="t" namespace="">
+                            <xsl:value-of select="ss:t"/>
+                          </xsl:element>
+                      </xsl:otherwise>
+                  </xsl:choose>
+                </xsl:element>
+            </xsl:for-each>
+        </xsl:element>
+    </xsl:template>
+</xsl:transform>

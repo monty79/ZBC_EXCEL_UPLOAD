@@ -1,0 +1,56 @@
+<xsl:transform version="1.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:sap="http://www.sap.com/sapxsl"
+  xmlns:ss="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+  xmlns:asx="http://www.sap.com/abapxml"
+  exclude-result-prefixes="c" version="1.0"
+>
+    <xsl:param name="P_SHARED_STRING" select=""/>
+    <xsl:param name="P_COLS" select=""/>
+    <xsl:strip-space elements="*"/>
+    <xsl:output encoding="utf-8" indent="yes" omit-xml-declaration="yes"/>
+    <xsl:variable name="V_SHARED_STRING">
+        <xsl:if test="$P_SHARED_STRING">
+            <xsl:copy-of select="$P_SHARED_STRING"/>
+        </xsl:if>
+    </xsl:variable>
+
+    <xsl:variable name="V_COLS">
+        <xsl:if test="$P_COLS">
+            <xsl:copy-of select="$P_COLS"/>
+        </xsl:if>
+    </xsl:variable>
+
+    <xsl:template match="/">
+        <asx:abap version="1.0">
+            <asx:values>
+                <LT_DATA>
+                    <xsl:for-each select="ss:worksheet/ss:sheetData/ss:row">
+                        <xsl:variable name="cur_row" select="."/>
+                        <xsl:variable name="row_id" select="position()"/>
+                        <xsl:for-each select="$V_COLS//item">
+                            <ZALSMEX_TABLE_XLS_LONG_TEXT_L>
+                                <ROW>
+                                    <xsl:value-of select="$row_id"/>
+                                </ROW>
+                                <COL>
+                                    <xsl:value-of select="COL"/>
+                                </COL>
+                                <VALUE>
+                                    <xsl:variable name="cell_id" select="concat(INDEX, $row_id)"/>
+                                    <xsl:variable name="v_index" select="$cur_row/ss:c[@r=$cell_id][@t='s']/ss:v"/>
+                                    <xsl:if test="$v_index">
+                                            <xsl:value-of select="$V_SHARED_STRING/sst/si[$v_index + 1]/descendant-or-self::*/node()"/>
+                                    </xsl:if>
+                                    <xsl:if test="not($v_index)">
+                                            <xsl:value-of select="$cur_row/ss:c[@r=$cell_id]/ss:v"/>
+                                    </xsl:if>
+                                </VALUE>
+                            </ZALSMEX_TABLE_XLS_LONG_TEXT_L>
+                        </xsl:for-each>
+                    </xsl:for-each>
+                </LT_DATA>
+            </asx:values>
+        </asx:abap>
+    </xsl:template>
+</xsl:transform>
